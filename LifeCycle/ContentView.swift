@@ -10,6 +10,7 @@ import SwiftUI
 struct TimerView: View {
     @State private var timerValue: Int = 0
     @State private var timer: Timer?
+    @Binding var initialDate: Date
     
     var body: some View {
         VStack {
@@ -22,6 +23,10 @@ struct TimerView: View {
     }
     
     func startTimer() {
+        let currentTime = Date().timeIntervalSince1970
+        let startTime = initialDate.timeIntervalSince1970
+        let cursorTime = currentTime - startTime
+        timerValue = Int(cursorTime)
         timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { _ in
             timerValue += 1
         }
@@ -33,21 +38,24 @@ struct TimerView: View {
 }
 
 struct ContentView: View {
+    
+    @State var initialDate: Date = Date()
+    @State var timerHasShown: Bool = false
+    
     var body: some View {
         NavigationView {
             VStack {
-                NavigationLink(destination: TimerView()) {
+                NavigationLink(destination: TimerView(initialDate: $initialDate)) {
                     Text("Ver temporizador")
+                }.onTapGesture {
+                    if !timerHasShown {
+                        self.initialDate = Date()
+                        timerHasShown = true
+                    }
                 }
             }
             .navigationTitle("Inicio")
         }
-    }
-}
-
-struct ContentView_Previews: PreviewProvider {
-    static var previews: some View {
-        ContentView()
     }
 }
 
